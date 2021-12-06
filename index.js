@@ -48,8 +48,7 @@ async function loadMeili() {
     })
 
     const opts = {
-        //filter: '(&(objectCategory=User)(sAMAccountName=' + process.env.FILTER + '))',
-        filter: "&(objectCategory=User)(whenChanged>=20211111160000.0Z)",
+        filter: '(&(objectCategory=User)(sAMAccountName=' + process.env.FILTER + '))',
         scope: 'sub',
         paged: { pageSize: 300, pagePause: false },
         attributes: ['sAMAccountName', 'sn', 'givenName', 'displayName', 'ugKthid',
