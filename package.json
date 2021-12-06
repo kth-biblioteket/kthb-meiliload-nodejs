@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "bunyan": "^1.8.15",
+    "dotenv": "^10.0.0",
+    "ldapjs": "^2.3.1",
+    "ldapjs-client": "^0.1.1",
+    "meilisearch": "^0.22.3",
+    "node-cron": "^3.0.0",
+    "xml2js": "^0.4.23"
+  }
+}
