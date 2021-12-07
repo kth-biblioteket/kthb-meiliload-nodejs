@@ -50,10 +50,9 @@ async function loadMeili() {
     const opts = {
         filter: '(&(objectCategory=User)(sAMAccountName=' + process.env.FILTER + '))',
         scope: 'sub',
-        paged: { pageSize: 300, pagePause: false },
+        paged: { pageSize: 1000, pagePause: false },
         attributes: ['sAMAccountName', 'sn', 'givenName', 'displayName', 'ugKthid',
-            'ugUsername', 'mail', 'title', 'whenCreated', 'whenChanged', 'ugAffiliation', 'ugPrimaryAffiliation',
-            'memberOf', 'kthPAGroupMembership']
+            'ugUsername', 'mail', 'title', 'whenCreated', 'whenChanged', 'ugAffiliation', 'ugPrimaryAffiliation', 'kthPAGroupMembership']
     };
 
     const index = meiliclient.index('ugusers')
@@ -96,7 +95,6 @@ async function loadMeili() {
                 }
             }
             log.info('Number of users added: ' + ugusersjson.length)
-            console.log(ugusersjson)
             log.info('Finished loadMeili')
             ugusersjson = []
             return;
