@@ -120,7 +120,7 @@ async function parse_dbl_xml(dblxml) {
     
     fs.writeFileSync('dbl.json',JSON.stringify(dbl))
     let command=`curl -X POST '${process.env.MEILI_DBL_HOST}/indexes/dbl/documents' -H 'Content-Type: application/json' --data-binary @dbl.json`
-    child = exec(command, function(error, stdout, stderr){
+    let child = exec(command, function(error, stdout, stderr){
         log.info('stdout: ' + stdout)
         log.info('stderr: ' + stderr)
         if(error !== null)
