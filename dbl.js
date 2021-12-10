@@ -25,8 +25,6 @@ function load_dbl() {
 
 async function parse_dbl_xml(dblxml) {
 
-    const index = meiliclient.index('dbl')
-
     const parser = new xml2js.Parser({ attrkey: "ATTR" });
 
     let dbl = []
