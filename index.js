@@ -83,7 +83,7 @@ async function loadMeili() {
             let fileindex = 1;
             for (let i = 0; i < ugusersjson.length; i += parseInt(process.env.BULKSIZE)) {
                 fs.writeFileSync('ugusers' + fileindex + '.json',JSON.stringify(ugusersjson.slice(i, i + parseInt(process.env.BULKSIZE))))
-                let command=`curl -X POST '${process.env.MEILI_HOST}/indexes/ugusers/documents' -H 'Content-Type: application/json' --header "X-Meili-API-Key: ${process.env.MEILI_KEY}" --data-binary @ugusers${fileindex}.json`
+                let command=`curl -X POST '${process.env.MEILI_HOST}/indexes/ugusers/documents' -H 'Content-Type: application/json' --header 'X-Meili-API-Key: ${process.env.MEILI_KEY}' --data-binary @ugusers${fileindex}.json`
                 let child = exec(command, function(error, stdout, stderr){
                     log.info('stdout: ' + stdout)
                     log.info('stderr: ' + stderr)
