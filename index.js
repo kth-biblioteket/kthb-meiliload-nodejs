@@ -1,7 +1,10 @@
 "use strict";
 
 require('dotenv').config();
+const fs = require('fs');
 const cron = require('node-cron');
+const util = require('util');
+const exec = require('child_process').exec;
 
 const dbl = require('./dbl');
 
@@ -19,13 +22,7 @@ async function loadMeili() {
     });
 
     const ldap = require('ldapjs');
-    const { MeiliSearch } = require('meilisearch')
     log.info('Started loadMeili');
-
-    const meiliclient = new MeiliSearch({
-        host: process.env.MEILI_HOST,
-        apiKey: process.env.MEILI_KEY
-    })
 
     const client = ldap.createClient({
         url: 'ldaps://ug.kth.se',
@@ -52,7 +49,8 @@ async function loadMeili() {
         scope: 'sub',
         paged: { pageSize: 1000, pagePause: false },
         attributes: ['sAMAccountName', 'sn', 'givenName', 'displayName', 'ugKthid',
-            'ugUsername', 'mail', 'title', 'whenCreated', 'whenChanged', 'ugAffiliation', 'ugPrimaryAffiliation', 'kthPAGroupMembership']
+            'ugUsername', 'mail', 'title', 'whenCreated', 'whenChanged', 'ugAffiliation',
+            'ugPrimaryAffiliation', 'kthPAGroupMembership']
     };
 
     const index = meiliclient.index('ugusers')
@@ -66,6 +64,7 @@ async function loadMeili() {
 
     client.search('dc=ug,dc=kth,dc=se', opts, async (err, res) => {
         res.on('searchRequest', (searchRequest) => {
+            console.log(searchRequest.messageID)
         });
         res.on('searchEntry', async (entry) => {
             if (entry.object.sAMAccountName) {
@@ -84,15 +83,19 @@ async function loadMeili() {
         res.on('end', async (result) => {
             log.info("Total count: " + count)
             const updates = []
+            let fileindex = 1;
             for (let i = 0; i < ugusersjson.length; i += parseInt(process.env.BULKSIZE)) {
-                if (process.env.ADD == 'true') {
-                    let meiliaddresult = await index.addDocuments(ugusersjson.slice(i, i + parseInt(process.env.BULKSIZE)))
-                    log.info(meiliaddresult)
-                }
-                if (process.env.UPDATE == 'true') {
-                    let meiliupdateresult = await index.updateDocuments(ugusersjson.slice(i, i + parseInt(process.env.BULKSIZE)))
-                    log.info(meiliupdateresult)
-                }
+                fs.writeFileSync('ugusers' + fileindex + '.json',JSON.stringify(ugusersjson.slice(i, i + parseInt(process.env.BULKSIZE))))
+                let command=`curl -X POST '${process.env.MEILI_HOST}/indexes/ugusers/documents' -H 'Content-Type: application/json' --header "X-Meili-API-Key: ${process.env.MEILI_KEY}" --data-binary @ugusers${fileindex}.json`
+                child = exec(command, function(error, stdout, stderr){
+                    log.info('stdout: ' + stdout)
+                    log.info('stderr: ' + stderr)
+                    if(error !== null)
+                    {
+                        log.info('exec error: ' + error);
+                    }
+                })
+               fileindex++
             }
             log.info('Number of users added: ' + ugusersjson.length)
             log.info('Finished loadMeili')

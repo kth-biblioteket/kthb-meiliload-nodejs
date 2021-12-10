@@ -8,7 +8,7 @@ fs = require('fs');
 const https = require('https');
 
 function load_dbl() {
-    https.get('https://apps.lib.kth.se/dbl/xml/dbl.xml', (resp) => {
+    https.get(process.env.DBL_XML, (resp) => {
         let data = '';
         resp.on('data', (chunk) => {
             data += chunk;
@@ -24,11 +24,6 @@ function load_dbl() {
 }
 
 async function parse_dbl_xml(dblxml) {
-    const { MeiliSearch } = require('meilisearch')
-    const meiliclient = new MeiliSearch({
-        host: process.env.MEILI_DBL_HOST,
-        apiKey: ""
-    })
 
     const index = meiliclient.index('dbl')
 
@@ -125,7 +120,16 @@ async function parse_dbl_xml(dblxml) {
         }
     });
     
-    let meiliaddresult = await index.updateDocuments(dbl)
+    fs.writeFileSync('dbl.json',JSON.stringify(dbl))
+    let command=`curl -X POST '${process.env.MEILI_DBL_HOST}/indexes/dbl/documents' -H 'Content-Type: application/json' --data-binary @dbl.json`
+    child = exec(command, function(error, stdout, stderr){
+        log.info('stdout: ' + stdout)
+        log.info('stderr: ' + stderr)
+        if(error !== null)
+        {
+            log.info('exec error: ' + error);
+        }
+    })
 
     const bunyan = require('bunyan');
 
@@ -137,10 +141,7 @@ async function parse_dbl_xml(dblxml) {
             period: '1d',
             count: 3
         }]
-    });
-
-    log.info(meiliaddresult)
-                 
+    });          
     
 }
 
