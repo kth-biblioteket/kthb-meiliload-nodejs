@@ -53,10 +53,7 @@ async function loadMeili() {
             'ugPrimaryAffiliation', 'kthPAGroupMembership']
     };
 
-    const index = meiliclient.index('ugusers')
     if (process.env.DELETE == 'true') {
-        let deletedocs = await index.deleteAllDocuments()
-        log.info(deletedocs);
     }
     let count = 0;
     let ugusersjson = [];
