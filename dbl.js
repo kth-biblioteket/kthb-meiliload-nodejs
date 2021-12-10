@@ -2,6 +2,8 @@
 pattern = /["][l][e][a][d][e][r]["][A-Za-z0-9 :"]*[,]/
 
 require('dotenv').config();
+const util = require('util');
+const exec = require('child_process').exec;
 
 const xml2js = require('xml2js');
 fs = require('fs');
